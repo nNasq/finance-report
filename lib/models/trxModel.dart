@@ -31,11 +31,13 @@ class TransactionModel {
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     return TransactionModel(
       id: json['id'].toString(),
-      title: json['title'] ?? '',
-      amount: double.parse(json['amount'].toString()),
-      type: TransactionType.values.firstWhere( (e) => e.name.toLowerCase() == json['type'].toString().toLowerCase(),),
+      title: json['title']?.toString() ?? '',
+      amount: double.tryParse(json['amount'].toString()) ?? 0.0,
+      type: TransactionType.values.firstWhere(
+        (e) => e.name.toLowerCase() == json['type'].toString().toLowerCase(),
+      ),
       date: DateTime.parse(json['date'].toString()),
-      note: json['note'],
+      note: json['note']?.toString(),
     );
   }
 }

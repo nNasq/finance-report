@@ -4,13 +4,8 @@ import 'package:intl/intl.dart';
 
 class TransactionItem extends StatelessWidget {
   final TransactionModel transaction;
-  final VoidCallback onDelete;
 
-  const TransactionItem({
-    super.key,
-    required this.transaction,
-    required this.onDelete,
-  });
+  const TransactionItem({super.key, required this.transaction});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +34,6 @@ class TransactionItem extends StatelessWidget {
         child: Icon(Icons.delete_outline, color: Colors.red.shade400),
       ),
       confirmDismiss: (_) => _confirmDelete(context),
-      onDismissed: (_) => onDelete(),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(

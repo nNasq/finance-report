@@ -35,14 +35,39 @@ class _HomeScreenState extends State<HomeScreen> {
             if (provider.error != null) {
               return Center(child: Text(provider.error!));
             }
-            
-            return CustomScrollView(
-              slivers: [
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // App Bar
                 _buildAppBar(context),
-                _buildSummarySection(provider),
-                _buildTransactionHeader(context, provider),
-                _buildTransactionList(context, provider),
-                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+
+                // Scrollable content
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Summary Card
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                          child: SummaryCard(summary: provider.summary),
+                        ),
+
+                        // Transaction Header
+                        _buildTransactionHeader(context, provider),
+
+                        // Transaction List
+                        if (provider.transactions.isEmpty)
+                          const _EmptyState()
+                        else
+                          _buildTransactionList(context, provider),
+
+                        const SizedBox(height: 100),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             );
           },
@@ -52,61 +77,42 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  SliverAppBar _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context) {
     final theme = Theme.of(context);
-    return SliverAppBar(
-      floating: true,
-      backgroundColor: theme.colorScheme.background,
-      surfaceTintColor: Colors.transparent,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Financial Report',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-      titleSpacing: 20,
-    );
-  }
-
-  SliverToBoxAdapter _buildSummarySection(TransactionProvider provider) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-        child: SummaryCard(summary: provider.summary),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      child: Text(
+        'Financial Report',
+        style: theme.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
 
-  SliverToBoxAdapter _buildTransactionHeader(
+  Widget _buildTransactionHeader(
     BuildContext context,
     TransactionProvider provider,
   ) {
     final theme = Theme.of(context);
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 28, 20, 12),
-        child: Row(
-          children: [
-            Text(
-              'Riwayat Transaksi',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 28, 20, 12),
+      child: Row(
+        children: [
+          Text(
+            'Riwayat Transaksi',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
             ),
-            const Spacer(),
-            Text(
-              '${provider.transactions.length} transaksi',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onBackground.withOpacity(0.4),
-              ),
+          ),
+          const Spacer(),
+          Text(
+            '${provider.transactions.length} transaksi',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onBackground.withOpacity(0.4),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -115,23 +121,16 @@ class _HomeScreenState extends State<HomeScreen> {
     BuildContext context,
     TransactionProvider provider,
   ) {
-    if (provider.transactions.isEmpty) {
-      return SliverFillRemaining(hasScrollBody: false, child: _EmptyState());
-    }
-
-    return SliverPadding(
+    return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      sliver: SliverList.separated(
-        itemCount: provider.transactions.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
-        itemBuilder: (context, index) {
-          final transaction = provider.transactions[index];
-          return TransactionItem(
-            transaction: transaction,
-            onDelete: () => provider.deleteTransaction(transaction.id),
-          );
-        },
-      ),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: provider.transactions.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final transaction = provider.transactions[index];
+        return TransactionItem(transaction: transaction);
+      },
     );
   }
 
@@ -146,32 +145,37 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          Icons.receipt_long_outlined,
-          size: 64,
-          color: theme.colorScheme.onBackground.withOpacity(0.2),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'Belum ada transaksi',
-          style: theme.textTheme.titleMedium?.copyWith(
-            color: theme.colorScheme.onBackground.withOpacity(0.4),
+    return Padding(
+      padding: const EdgeInsets.only(top: 80),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.receipt_long_outlined,
+            size: 64,
+            color: theme.colorScheme.onBackground.withOpacity(0.2),
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Tap tombol + untuk menambahkan',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onBackground.withOpacity(0.3),
+          const SizedBox(height: 16),
+          Text(
+            'Belum ada transaksi',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.colorScheme.onBackground.withOpacity(0.4),
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            'Tap tombol + untuk menambahkan',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onBackground.withOpacity(0.3),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

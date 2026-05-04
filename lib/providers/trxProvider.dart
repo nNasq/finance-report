@@ -71,18 +71,5 @@ class TransactionProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteTransaction(String id) async {
-    final backup = List<TransactionModel>.from(transactions);
-
-    transactions.removeWhere((t) => t.id == id);
-    notifyListeners();
-
-    try {
-      await _service.delete(id);
-    } catch (e) {
-      transactions = backup;
-      error = e.toString();
-      notifyListeners();
-    }
-  }
+  
 }
