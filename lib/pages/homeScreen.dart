@@ -2,6 +2,7 @@ import 'package:financialreport/providers/trxProvider.dart';
 import 'package:financialreport/widgets/addTransactionSheet.dart';
 import 'package:financialreport/widgets/summaryCard.dart';
 import 'package:financialreport/widgets/transactionItem.dart';
+import 'package:financialreport/widgets/editTransactionSheet.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -122,14 +123,18 @@ class _HomeScreenState extends State<HomeScreen> {
     TransactionProvider provider,
   ) {
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       itemCount: provider.transactions.length,
       separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final transaction = provider.transactions[index];
-        return TransactionItem(transaction: transaction);
+        return TransactionItem(
+          transaction: transaction,
+          onDelete: () => provider.deleteTransaction(transaction.id),
+          onEdit: () => EditTransactionSheet.show(context, transaction),
+        );
       },
     );
   }

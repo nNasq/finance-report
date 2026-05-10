@@ -4,19 +4,24 @@ import 'package:intl/intl.dart';
 
 class TransactionItem extends StatelessWidget {
   final TransactionModel transaction;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
 
-  const TransactionItem({super.key, required this.transaction});
+  const TransactionItem({
+    super.key,
+    required this.transaction,
+    required this.onDelete,
+    required this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isIncome = transaction.isIncome;
-    final amountColor = isIncome
-        ? const Color(0xFF16A34A)
-        : const Color(0xFFDC2626);
-    final iconColor = isIncome
-        ? const Color(0xFF4ADE80)
-        : const Color(0xFFF87171);
+    final amountColor =
+        isIncome ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
+    final iconColor =
+        isIncome ? const Color(0xFF4ADE80) : const Color(0xFFF87171);
     final iconBg = isIncome
         ? const Color(0xFF4ADE80).withOpacity(0.12)
         : const Color(0xFFF87171).withOpacity(0.12);
@@ -34,6 +39,7 @@ class TransactionItem extends StatelessWidget {
         child: Icon(Icons.delete_outline, color: Colors.red.shade400),
       ),
       confirmDismiss: (_) => _confirmDelete(context),
+      onDismissed: (_) => onDelete(),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
@@ -43,6 +49,7 @@ class TransactionItem extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // Icon
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -58,6 +65,8 @@ class TransactionItem extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 14),
+
+            // Title, note, date
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,12 +103,41 @@ class TransactionItem extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Text(
-              '${isIncome ? '+' : '-'} ${_formatCompact(transaction.amount)}',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: amountColor,
-                fontWeight: FontWeight.bold,
-              ),
+
+            // Amount + tombol Edit
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '${isIncome ? '+' : '-'} ${_formatCompact(transaction.amount)}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: amountColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                GestureDetector(
+                  onTap: onEdit,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'Edit',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -108,10 +146,10 @@ class TransactionItem extends StatelessWidget {
   }
 
   String _formatCompact(double value) => NumberFormat.compactCurrency(
-    locale: 'id_ID',
-    symbol: 'Rp',
-    decimalDigits: 0,
-  ).format(value);
+        locale: 'id_ID',
+        symbol: 'Rp',
+        decimalDigits: 0,
+      ).format(value);
 
   Future<bool> _confirmDelete(BuildContext context) async {
     final result = await showDialog<bool>(
@@ -119,7 +157,8 @@ class TransactionItem extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Hapus Transaksi'),
-        content: const Text('Apakah kamu yakin ingin menghapus transaksi ini?'),
+        content:
+            const Text('Apakah kamu yakin ingin menghapus transaksi ini?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),

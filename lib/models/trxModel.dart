@@ -33,10 +33,16 @@ class TransactionModel {
       id: json['id'].toString(),
       title: json['title']?.toString() ?? '',
       amount: double.tryParse(json['amount'].toString()) ?? 0.0,
+      
+      // Menggunakan orElse agar tidak terjadi Bad state: No element
       type: TransactionType.values.firstWhere(
-        (e) => e.name.toLowerCase() == json['type'].toString().toLowerCase(),
+        (e) => e.name.toLowerCase() == json['type']?.toString().toLowerCase(),
+        orElse: () => TransactionType.expense, 
       ),
-      date: DateTime.parse(json['date'].toString()),
+      
+      // Menggunakan tryParse agar tidak error jika format tanggal salah atau kosong
+      date: DateTime.tryParse(json['date'].toString()) ?? DateTime.now(),
+      
       note: json['note']?.toString(),
     );
   }

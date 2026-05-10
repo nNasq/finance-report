@@ -4,7 +4,7 @@ import 'package:financialreport/models/trxModel.dart';
 
 class TransactionService {
   final String baseUrl =
-      "https://script.google.com/macros/s/AKfycbwvknjsUfzZSF6YaFfuz8ggkqjTdqCLeAo_YWdl2nQE8lAe5iKP687Cwh-CI5aD4uix/exec";
+      "https://script.google.com/macros/s/AKfycbz8N9Qlzd4EoNGUaKUJbYMyW5frmJ2U25u2Ky5UDw6kB23CvuwfoIMQSrWtK1nf8xzG2A/exec";
 
   Future<List<TransactionModel>> getAll() async {
     final res = await http.get(Uri.parse(baseUrl));
@@ -26,5 +26,20 @@ class TransactionService {
       body: jsonEncode(trx.toJson()),
     );
   }
-}
 
+  Future<void> delete(String id) async {
+    final res = await http.post(
+      Uri.parse(baseUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"action": "delete", "id": id}),
+    );
+  }
+
+  Future<void> update(TransactionModel trx) async {
+    await http.post(
+      Uri.parse(baseUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"action": "update", ...trx.toJson()}),
+    );
+  }
+}

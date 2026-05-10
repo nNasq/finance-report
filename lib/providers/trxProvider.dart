@@ -71,5 +71,56 @@ class TransactionProvider extends ChangeNotifier {
     }
   }
 
-  
+  Future<void> deleteTransaction(String id) async {
+    final backup = List<TransactionModel>.from(transactions);
+
+    transactions.removeWhere((t) => t.id == id);
+    notifyListeners();
+
+    try {
+      await _service.delete(id);
+    } catch (e) {
+      transactions = backup;
+      error = e.toString();
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateTransaction({
+    required String id,
+    required String title,
+    required double amount,
+    required TransactionType type,
+    required DateTime date,
+    String? note,
+  }) async {
+    final index = transactions.indexWhere((t) => t.id == id);
+    if (index == -1) return;
+
+    final backup = transactions[index];
+
+    final updated = TransactionModel(
+      id: id,
+      title: title,
+      amount: amount,
+      type: type,
+      date: date,
+      note: note,
+    );
+
+    transactions[index] = updated;
+    // Urutkan ulang berdasarkan tanggal
+    transactions.sort((a, b) => b.date.compareTo(a.date));
+    notifyListeners();
+
+    try {
+      await _service.update(updated);
+    } catch (e) {
+      // Rollback jika gagal
+      transactions[index] = backup;
+      transactions.sort((a, b) => b.date.compareTo(a.date));
+      error = e.toString();
+      notifyListeners();
+    }
+  }
 }
