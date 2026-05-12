@@ -18,10 +18,12 @@ class TransactionItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isIncome = transaction.isIncome;
-    final amountColor =
-        isIncome ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
-    final iconColor =
-        isIncome ? const Color(0xFF4ADE80) : const Color(0xFFF87171);
+    final amountColor = isIncome
+        ? const Color(0xFF16A34A)
+        : const Color(0xFFDC2626);
+    final iconColor = isIncome
+        ? const Color(0xFF4ADE80)
+        : const Color(0xFFF87171);
     final iconBg = isIncome
         ? const Color(0xFF4ADE80).withOpacity(0.12)
         : const Color(0xFFF87171).withOpacity(0.12);
@@ -146,10 +148,10 @@ class TransactionItem extends StatelessWidget {
   }
 
   String _formatCompact(double value) => NumberFormat.compactCurrency(
-        locale: 'id_ID',
-        symbol: 'Rp',
-        decimalDigits: 0,
-      ).format(value);
+    locale: 'id_ID',
+    symbol: 'Rp',
+    decimalDigits: 0,
+  ).format(value);
 
   Future<bool> _confirmDelete(BuildContext context) async {
     final result = await showDialog<bool>(
@@ -157,8 +159,7 @@ class TransactionItem extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Hapus Transaksi'),
-        content:
-            const Text('Apakah kamu yakin ingin menghapus transaksi ini?'),
+        content: const Text('Apakah kamu yakin ingin menghapus transaksi ini?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
